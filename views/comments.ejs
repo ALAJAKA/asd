@@ -1,0 +1,86 @@
+<script>
+  function comment_get(postId){
+    $.ajax({
+      type: "get",
+      url: "/comments/"+postId,
+      data: {},
+      success: function (response) {
+        let a = response['comments'];
+        for(let i=0; i<a.length; i++){
+          const comment = a[i]['comment'];
+          const nickname = a[i]['nickname'];
+          const createdAt = a[i]['createdAt'];
+          const commentId = a[i]['commentId'];
+
+          let temh=`<div class="card">
+  <div class="card-header" >
+    작성자 ${nickname}
+  </div>
+  <div class="card-body">
+    <h5 class="card-title" id="comment${i}">${comment}</h5>
+    <p class="card-text" >작성시간 ${createdAt}</p>
+    <button class="btn btn-danger" id="onbtn${i}" onclick="up_comment(${i})">수정</a>
+    <button class="btn btn-danger"style="margin-left: 20px;" onclick="delete_comment(${commentId})">삭제하기</a>
+    <button class="btn btn-danger" id="offbtn${i}" style="display:none" onclick="update_comment(${i},${commentId})">수정완료</a>
+
+  </div>
+</div>`;
+
+          $("#comm").append(temh);
+        }
+      },
+      error: function (error) {
+        customAlert(error.responseJSON.errorMessage);
+      },
+    });
+  }
+
+  function up_comment(i){
+    const valc =$("#comment"+i).html();
+    $("#onbtn"+i).css("display","none");
+    $("#offbtn"+i).css("display","inline-block");
+    $("#comment"+i).html('<input type="text" class="form-control" id="upcom'+ i +'">');
+    $("#upcom"+i).val(valc);
+  }
+  function update_comment(i,commentId){
+    const vv = $("#upcom"+i).val();
+    console.log(commentId);
+    console.log(vv);
+    $.ajax({
+      type: "Put",
+      url: "/comments/"+commentId,
+      data: {
+        comment:vv
+      },
+      success: function (response) {
+        alert(response["msg"]);
+        window.location.reload();
+      },
+      error: function (error) {
+        customAlert(error.responseJSON.errorMessage);
+      },
+    });
+  }
+  function delete_comment(id){
+    $.ajax({
+      type: "Delete",
+      url: "/comments/"+id,
+      data: {},
+      success: function (response) {
+        alert(response["msg"]);
+        window.location.reload();
+      },
+      error: function (error) {
+        customAlert(error.responseJSON.errorMessage);
+      },
+    });
+  }
+</script>
+
+<div>
+  <h1 style="margin-bottom: 50px;">댓글 보여주기</h1>
+  <div id ="comm">
+
+  </div>
+
+</div>
